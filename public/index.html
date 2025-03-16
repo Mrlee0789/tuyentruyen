@@ -44,7 +44,8 @@
 
   <div id="zalo-warning">
     <p><strong>⚠️ Zalo không hỗ trợ camera.</strong></p>
-    <p>Vui lòng nhấn nút bên dưới để mở bằng trình duyệt ngoài như Chrome hoặc Safari.</p>
+    <p>Vui lòng nhấn nút bên dưới để mở bằng trình duyệt ngoài (Chrome, Safari...)</p>
+    <p>📌 Nếu không được, bạn nhấn dấu ba chấm (⋮) và chọn "Mở bằng trình duyệt"</p>
     <button onclick="openInBrowser()">Mở bằng trình duyệt</button>
   </div>
 
@@ -78,11 +79,7 @@
 
     function openInBrowser() {
       const url = window.location.href;
-      if (navigator.userAgent.toLowerCase().includes("android")) {
-        window.location.href = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
-      } else {
-        window.location.href = url;
-      }
+      window.open(url, "_blank");
     }
 
     function captureAndUpload() {
