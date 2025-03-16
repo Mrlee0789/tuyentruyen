@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera Uploadcare</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 2rem; }
+    video, img { width: 100%; max-width: 400px; margin: 1rem auto; display: block; border: 2px solid #ccc; border-radius: 10px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>📸 Chụp ảnh và tải lên Uploadcare</h1>
+  <video id="camera" autoplay playsinline></video>
+  <button onclick="takePhoto()">Chụp ảnh</button>
+  <img id="preview" src="" alt="Ảnh đã chụp">
+  <script>
+    const video = document.getElementById('camera');
+    const preview = document.getElementById('preview');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => alert("Không thể truy cập camera: " + err));
+
+    function takePhoto() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('photo', blob, 'photo.jpg');
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          preview.src = data.url;
+        })
+        .catch(err => alert("Lỗi khi upload: " + err));
+      }, 'image/jpeg');
+    }
+  </script>
+</body>
+</html>
